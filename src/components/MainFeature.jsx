@@ -8,7 +8,8 @@ function MainFeature() {
   const [tasks, setTasks] = useState([])
   const [newTask, setNewTask] = useState('')
   const [filter, setFilter] = useState('all')
-
+  const [editingTaskId, setEditingTaskId] = useState(null)
+  const [editingTaskTitle, setEditingTaskTitle] = useState('')
   // Load tasks from localStorage on component mount
   useEffect(() => {
     const savedTasks = localStorage.getItem('doitnow-tasks')
@@ -51,11 +52,40 @@ function MainFeature() {
     ))
   }
 
+const updateTask = (id, newTitle) => {
+    if (!newTitle.trim()) {
+      toast.error('Task title cannot be empty!')
+      return
+    }
+
+    setTasks(prev => prev.map(task => 
+      task.id === id 
+        ? { 
+            ...task, 
+            title: newTitle.trim(),
+            updatedAt: new Date().toISOString()
+          }
+        : task
+    ))
+    setEditingTaskId(null)
+    setEditingTaskTitle('')
+    toast.success('Task updated successfully!')
+  }
+
+  const handleEditTask = (task) => {
+    setEditingTaskId(task.id)
+    setEditingTaskTitle(task.title)
+  }
+
+  const cancelEdit = () => {
+    setEditingTaskId(null)
+    setEditingTaskTitle('')
+  }
+
   const deleteTask = (id) => {
     setTasks(prev => prev.filter(task => task.id !== id))
     toast.success('Task deleted successfully!')
   }
-
   const filteredTasks = tasks.filter(task => {
     if (filter === 'active') return !task.completed
     if (filter === 'completed') return task.completed
@@ -189,14 +219,54 @@ function MainFeature() {
                       className="task-checkbox mt-1 shrink-0"
                     />
                     
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-base sm:text-lg font-medium leading-relaxed break-words ${
-                        task.completed 
-                          ? 'line-through text-surface-400 dark:text-surface-500' 
-                          : 'text-surface-900 dark:text-surface-100'
-                      }`}>
-                        {task.title}
-                      </p>
+<div className="flex-1 min-w-0">
+                      {editingTaskId === task.id ? (
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={editingTaskTitle}
+                              onChange={(e) => setEditingTaskTitle(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  updateTask(task.id, editingTaskTitle)
+                                } else if (e.key === 'Escape') {
+                                  cancelEdit()
+                                }
+                              }}
+                              className="flex-1 px-3 py-2 text-base sm:text-lg font-medium bg-white dark:bg-surface-700 border-2 border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
+                              autoFocus
+                              maxLength={200}
+                            />
+                            <button
+                              onClick={() => updateTask(task.id, editingTaskTitle)}
+                              className="px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors duration-200 shrink-0"
+                              title="Save changes"
+                            >
+                              <ApperIcon name="Check" className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={cancelEdit}
+                              className="px-3 py-2 bg-surface-200 dark:bg-surface-600 text-surface-700 dark:text-surface-300 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-500 transition-colors duration-200 shrink-0"
+                              title="Cancel editing"
+                            >
+                              <ApperIcon name="X" className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <span
+                          onClick={() => handleEditTask(task)}
+                          className={`text-base sm:text-lg font-medium leading-relaxed break-words cursor-pointer hover:bg-surface-50 dark:hover:bg-surface-700 px-2 py-1 rounded transition-colors duration-200 ${
+                            task.completed 
+                              ? 'line-through text-surface-400 dark:text-surface-500' 
+                              : 'text-surface-900 dark:text-surface-100'
+                          }`}
+                          title="Click to edit"
+                        >
+                          {task.title}
+                        </span>
+                      )}
                       <p className="text-xs sm:text-sm text-surface-400 dark:text-surface-500 mt-1">
                         Created {format(new Date(task.createdAt), 'MMM d, yyyy')}
                         {task.updatedAt !== task.createdAt && (
