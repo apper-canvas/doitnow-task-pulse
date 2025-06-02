@@ -1,0 +1,54 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  html {
+    font-family: 'Inter', ui-sans-serif, system-ui;
+  }
+  
+  body {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+}
+
+@layer components {
+  .task-checkbox {
+    @apply w-5 h-5 rounded-lg border-2 border-surface-300 bg-white shadow-sm transition-all duration-200 cursor-pointer relative overflow-hidden;
+  }
+  
+  .task-checkbox:checked {
+    @apply border-primary bg-primary shadow-soft;
+  }
+  
+  .task-checkbox:checked::after {
+    content: '✓';
+    @apply absolute inset-0 flex items-center justify-center text-white text-xs font-bold;
+  }
+  
+  .task-item {
+    @apply group relative bg-white dark:bg-surface-800 rounded-2xl p-4 shadow-soft hover:shadow-card transition-all duration-300 border border-surface-100 dark:border-surface-700;
+  }
+  
+  .task-item:hover {
+    @apply transform -translate-y-1;
+  }
+  
+  .task-input {
+    @apply w-full px-6 py-4 bg-white dark:bg-surface-800 border-2 border-surface-200 dark:border-surface-600 rounded-2xl shadow-soft focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 placeholder-surface-400 text-surface-900 dark:text-surface-100;
+  }
+  
+  .add-button {
+    @apply bg-gradient-to-r from-primary to-primary-dark text-white px-8 py-4 rounded-2xl shadow-card hover:shadow-soft transform hover:scale-105 transition-all duration-200 font-medium;
+  }
+  
+  .delete-button {
+    @apply opacity-0 group-hover:opacity-100 bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-xl transition-all duration-200 border border-red-200 hover:border-red-300;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
